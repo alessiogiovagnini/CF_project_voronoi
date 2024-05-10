@@ -1,9 +1,12 @@
+import numpy as np
+
 from src import utils
 from pathlib import Path
 import bpy
 import sys
 from scipy.spatial import Voronoi
 from src.voronoi import make_segments
+from src.geometry import make_voronoi_structure
 import mathutils
 
 
@@ -19,8 +22,17 @@ def script_from_points(source: Path, output: Path, point_file: Path):
     voronoi_ridge_vertices = voronoi.ridge_vertices
 
     # these two are needed to construct the geometry
-    voronoi_vertices = voronoi.vertices
-    voronoi_segments = make_segments(ridge_vertices=voronoi_ridge_vertices)
+    voronoi_vertices: np.array = voronoi.vertices
+    voronoi_segments: list[tuple] = make_segments(ridge_vertices=voronoi_ridge_vertices)
+    print("made segments")
+    #min_distance, _, _ = utils.find_minimum_distance(voronoi_vertices)
+    radius: float = 0.01#min_distance/2
+    print("calculated radius")
+    utils.clear_scene()
+    print("starting making voronoi structure")
+    make_voronoi_structure(name="voronoi_structure", vertices=voronoi_vertices, segments=voronoi_segments, radius=radius)
+
+    utils.export_stl_file(output=output)
 
 
 # density is the number of point per 1 unit of volume

@@ -5,38 +5,50 @@ import mathutils
 from math import atan, pi, sqrt
 
 
-def make_sphere(name: str, position: list | np.array | tuple = (0, 0, 0), radius: float = 1):
-    """
-    generate a sphere at coordinate specified by position
-    :param position: list or array of coordinates x, y, z
-    :param name: name of the object that blender uses as unique identifier
-    :param radius: radius of the sphere
-    """
+def make_voronoi_structure(name: str, vertices: np.array, segments: list[tuple], radius: float):
     mesh = bpy.data.meshes.new(name)
-    basic_sphere = bpy.data.objects.new(name, mesh)
-
-    bpy.context.collection.objects.link(basic_sphere)
-
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
     bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=8, v_segments=7, radius=radius)
-    bmesh.ops.translate(bm, vec=position, verts=bm.verts)
+
+    for v in vertices:
+        make_sphere(bm=bm, position=v, radius=radius)
+
+    print("finished making spheres")
+
+    counter = 0
+    for s in segments:
+        print(f"made {counter}/{len(segments)} segment")
+        vertex1 = vertices[s[0]]
+        vertex2 = vertices[s[1]]
+        v1 = mathutils.Vector((vertex1[0], vertex1[1], vertex1[2]))
+        v2 = mathutils.Vector((vertex2[0], vertex2[1], vertex2[2]))
+        make_cylinder(bm=bm, v1=v1, v2=v2, radius=radius)
+        counter += 1
+    print("finished making segment")
     bm.to_mesh(mesh)
     bm.free()
 
 
-def make_cylinder(name: str, v1: mathutils.Vector, v2: mathutils.Vector, radius: float = 1):
+def make_sphere(bm: bmesh.types.BMesh, position: list or np.array or tuple = (0, 0, 0), radius: float = 1):
+    """
+    generate a sphere at coordinate specified by position
+    :param bm: bmesh instance
+    :param position: list or array of coordinates x, y, z
+    :param radius: radius of the sphere
+    """
+    vertices = bmesh.ops.create_uvsphere(bm, u_segments=8, v_segments=7, radius=radius)
+    bmesh.ops.translate(bm, vec=position, verts=vertices["verts"])
+
+
+def make_cylinder(bm: bmesh.types.BMesh, v1: mathutils.Vector, v2: mathutils.Vector, radius: float = 1):
     """
     generate a cylinder with one center end on v1 and the other on v2
-    :param name: name of the object that blender uses as unique identifier
+    :param bm: bmesh instance
     :param v1: center of one side of the cylinder
     :param v2: center of the other side of the cylinder
     :param radius: radius of cylinder
     """
-    mesh = bpy.data.meshes.new(name)
-    basic_sphere = bpy.data.objects.new(name, mesh)
-
-    bpy.context.collection.objects.link(basic_sphere)
-
     diff = v1 - v2
     x = diff.x
     y = diff.y
@@ -62,25 +74,21 @@ def make_cylinder(name: str, v1: mathutils.Vector, v2: mathutils.Vector, radius:
 
     new_pos = v1 + (v2 - v1) / 2  # position where to translate the new geometry center
 
-    bm = bmesh.new()
-    bmesh.ops.create_cone(bm,
-                          cap_ends=False,  # should there be caps????
-                          segments=8,  # resolution
-                          radius1=radius,
-                          radius2=radius,
-                          depth=size,
-                          matrix=mathutils.Matrix.Identity(4))
-    bmesh.ops.translate(bm, vec=new_pos, verts=bm.verts)  # translate geometry
+    vertices = bmesh.ops.create_cone(bm,
+                                     cap_ends=False,  # should there be caps????
+                                     segments=8,  # resolution
+                                     radius1=radius,
+                                     radius2=radius,
+                                     depth=size,
+                                     matrix=mathutils.Matrix.Identity(4))
+    bmesh.ops.translate(bm, vec=new_pos, verts=vertices['verts'])  # translate geometry
     bmesh.ops.rotate(bm,
                      cent=new_pos,
                      matrix=rotation_mat,
-                     verts=bm.verts)  # align geometry with line passing through v1 and v2
-    bm.to_mesh(mesh)
-    bm.free()
+                     verts=vertices["verts"])  # align geometry with line passing through v1 and v2
 
 
 def join_all_objects():
-
     selected_objects = bpy.context.selected_objects  # TODO select all sphere and cylinder in the scene
 
     new_mesh = bpy.data.meshes.new("final")
@@ -128,11 +136,8 @@ def boolean_operation(name_a, name_b, new_one_name):
 
 
 def merge_doubles(object_name: str):
-
     bm = bmesh.new()
     # TODO need to finish this if is going to be useful
     bmesh.ops.remove_doubles(bm, verts=[], dist=0)
 
     bm.free()
-
-

@@ -122,7 +122,7 @@ if __name__ == '__main__':
     #
     # script_start(source=Path(args.source), output=Path(args.output))
     source: Path = Path("./test_mesh/monkey_mesh.stl")
-    source_points: Path = Path("./test_mesh/monkey_points.obj")
+    source_points: Path = Path("./test_mesh/small_monkey_points.obj")
     output: Path = Path("./test_mesh/monkey_output.stl")
     script_from_points(source=source, output=output, point_file=source_points)
 

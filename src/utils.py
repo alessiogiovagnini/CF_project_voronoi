@@ -18,6 +18,22 @@ def import_file_obj(file: Path):
         sys.exit(1)
 
 
+# find the minimum distance between any point in the array, is there a way to make it faster than O(n^2)???
+def find_minimum_distance(points: np.array) -> tuple[float, np.array, np.array]:
+    point1 = None
+    point2 = None
+    min_distance: float = sys.float_info.max
+    for p1 in points:
+        for p2 in points:
+            dist = np.linalg.norm(p1 - p2)
+            if dist > 0:
+                if dist < min_distance:
+                    min_distance = dist
+                    point1 = p1
+                    point2 = p2
+    return min_distance, point1, point2
+
+
 def get_point_from_obj(obj: bpy.types.Object) -> np.array:
     return np.array([[v.co[0], v.co[1], v.co[2]] for v in obj.data.vertices])
 
