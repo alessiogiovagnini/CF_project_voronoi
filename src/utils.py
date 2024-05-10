@@ -10,7 +10,19 @@ def clear_scene():
         bpy.data.objects.remove(obj, do_unlink=True)
 
 
-def import_file(file: Path):
+def import_file_obj(file: Path):
+    if file.is_file():
+        bpy.ops.wm.obj_import(filepath=file.as_posix())
+    else:
+        print(f"selected obj file: {file} is not valid")
+        sys.exit(1)
+
+
+def get_point_from_obj(obj: bpy.types.Object) -> np.array:
+    return np.array([[v.co[0], v.co[1], v.co[2]] for v in obj.data.vertices])
+
+
+def import_file_stl(file: Path):
     if file.is_file():
         bpy.ops.import_mesh(filepath=file.as_posix())
     else:
@@ -39,7 +51,7 @@ def bounding_box_size(corner_min: mathutils.Vector, corner_max: mathutils.Vector
 
 # read all vertices of an object, this can be used to generate points in case the object is a mesh where every
 # vertex is a disconnected point
-def get_points_from_object(obj: bpy.data.Object) -> list[mathutils.Vector]:
+def get_points_from_object(obj: bpy.types.Object) -> list[mathutils.Vector]:
     points: list[mathutils.Vector] = []
     for v in obj.data.vertices:
         points.append(v.co)
