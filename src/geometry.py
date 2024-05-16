@@ -7,6 +7,7 @@ from math import atan, pi, sqrt
 
 def check_intersection(vertices: list, obj: bpy.data.Object) -> list[mathutils.Vector]:
     """
+    https://blender.stackexchange.com/questions/31693/how-to-find-if-a-point-is-inside-a-mesh
     filter points such that only the one inside the mesh are returned
     :param vertices: list of vertices
     :param obj: blender object

@@ -1,0 +1,9 @@
+{
+  "thickness": 0.3,
+  "meshes": [
+    {
+      "path": "./data/...",
+      "density": 500
+    }
+  ]
+}

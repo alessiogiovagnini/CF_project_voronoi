@@ -8,6 +8,7 @@ from scipy.spatial import Voronoi
 from src.voronoi import make_segments
 from src.geometry import make_voronoi_structure
 import mathutils
+import json
 
 
 def script_from_points(source: Path, output: Path, point_file: Path):
@@ -55,6 +56,29 @@ def script_start(source: Path, output: Path, density: int = 100, radius: float =
 
     total_num_points: int = int(density * volume)
 
+
+def script_from_json(json_path: Path):
+    file = open(json_path)
+    data = json.load(file)
+    file.close()
+
+    thickness: float = data.get("thickness")
+    mesh_list: list = data.get("meshes")
+    for current_mesh in mesh_list:
+        density: int = current_mesh.get("density")  # density is number of points for unit cube
+        mesh_path: Path = Path(current_mesh.get("path"))
+
+        # TODO:
+        #  1) import mesh
+        #  2) calculate bounding box
+        #  3) filter pints inside mesh
+        #  4) append together all points from all meshes
+        #  5) calculate voronoi from points
+        #  6) create voronoi geometry
+        #  7) join original meshes together (or is better to have an extra one already joined???)
+        #  8) boolean operation between voronoi mesh and joined original
+        #  extra: should we also include the wireframe of the original????
+        #  9) export result as stl
 
 
 
