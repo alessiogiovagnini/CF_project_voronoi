@@ -1,13 +1,12 @@
 import mathutils
 import numpy as np
-
 from src import utils
 from pathlib import Path
 import bpy
 import sys
 from scipy.spatial import Voronoi
 from src.voronoi import make_segments, generate_n_random_points
-from src.geometry import make_voronoi_structure, check_intersection
+from src.geometry import make_voronoi_structure, check_intersection, join_all_objects
 import json
 from src.utils import import_file_stl, get_bounding_box
 
@@ -63,7 +62,7 @@ def script_from_json(json_path: Path):
     data = json.load(file)
     file.close()
 
-    thickness: float = data.get("thickness")
+    thickness: float = data.get("thickness")  # radius
     mesh_list: list = data.get("meshes")
     original_mesh_names: list[str] = []
     all_random_points: list[mathutils.Vector] = []
@@ -101,10 +100,26 @@ def script_from_json(json_path: Path):
         #  4) append together all points from all meshes
         all_random_points.extend(filtered_points)
 
-    # TODO:
+    compatible_points = [np.array((p[0], p[1], p[2])) for p in all_random_points]
     #  5) calculate voronoi from points
+    voronoi = Voronoi(points=compatible_points)
+
+    voronoi_ridge_vertices = voronoi.ridge_vertices
+
+    # these two are needed to construct the geometry
+    voronoi_vertices: np.array = voronoi.vertices
+    voronoi_segments: list[tuple] = make_segments(ridge_vertices=voronoi_ridge_vertices)
+
     #  6) create voronoi geometry
+    voronoi_structure_name: str = "voronoi_structure"
+    make_voronoi_structure(name=voronoi_structure_name,
+                           vertices=voronoi_vertices, segments=voronoi_segments, radius=thickness)
+
     #  7) join original meshes together (or is better to have an extra one already joined???)
+    original_objects: list[bpy.data.Object] = [bpy.data.objects[name] for name in original_mesh_names]
+    join_all_objects(selected_objects=original_objects, new_name="merged_objects")
+
+    # TODO:
     #  8) boolean operation between voronoi mesh and joined original
     #  extra: should we also include the wireframe of the original????
     #  9) export result as stl

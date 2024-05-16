@@ -34,6 +34,7 @@ def check_intersection(vertices: list, obj: bpy.data.Object) -> list[mathutils.V
 
 
 def make_voronoi_structure(name: str, vertices: np.array, segments: list[tuple], radius: float):
+    # TODO: optimize this by making it multi-threaded???
     mesh = bpy.data.meshes.new(name)
     obj = bpy.data.objects.new(name, mesh)
     bpy.context.collection.objects.link(obj)
@@ -116,11 +117,14 @@ def make_cylinder(bm: bmesh.types.BMesh, v1: mathutils.Vector, v2: mathutils.Vec
                      verts=vertices["verts"])  # align geometry with line passing through v1 and v2
 
 
-def join_all_objects():
-    selected_objects = bpy.context.selected_objects  # TODO select all sphere and cylinder in the scene
-
-    new_mesh = bpy.data.meshes.new("final")
-    new_object = bpy.data.objects.new("final", new_mesh)
+def join_all_objects(selected_objects: list[bpy.data.Object], new_name: str):
+    """
+    join multiple objects together
+    :param selected_objects: list of python objects
+    :param new_name: name of new object
+    """
+    new_mesh = bpy.data.meshes.new(new_name)
+    new_object = bpy.data.objects.new(new_name, new_mesh)
 
     bm = bmesh.new()
     for obj in selected_objects:
