@@ -5,6 +5,31 @@ import mathutils
 from math import atan, pi, sqrt
 
 
+def check_intersection(vertices: list, obj: bpy.data.Object) -> list[mathutils.Vector]:
+    """
+    filter points such that only the one inside the mesh are returned
+    :param vertices: list of vertices
+    :param obj: blender object
+    :return: list of vertices that are inside the mesh
+    """
+    me = obj.data   # make object to mesh
+    bm = bmesh.new()
+    bm.from_mesh(me)
+
+    points_inside: list[mathutils.Vector] = []
+
+    bvh = mathutils.bvhtree.BVHTree.FromBMesh(bm, epsilon=0.0)
+    for vertex in vertices:
+        v = mathutils.Vector((vertex[0], vertex[1], vertex[2]))  # maybe pass the list as vectors already???
+        location, normal, index, distance = bvh.find_nearest(v)
+        p2 = location - v
+        res = p2.dot(normal)
+        if not res < 0.0:
+            points_inside.append(v)
+
+    return points_inside
+
+
 def make_voronoi_structure(name: str, vertices: np.array, segments: list[tuple], radius: float):
     mesh = bpy.data.meshes.new(name)
     obj = bpy.data.objects.new(name, mesh)
