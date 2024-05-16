@@ -28,6 +28,8 @@ def check_intersection(vertices: list, obj: bpy.data.Object) -> list[mathutils.V
         if not res < 0.0:
             points_inside.append(v)
 
+    bm.free()
+
     return points_inside
 
 

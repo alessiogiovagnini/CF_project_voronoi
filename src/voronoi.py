@@ -1,12 +1,20 @@
 import numpy as np
 
 
-def generate_random_point(min_x: int, max_x: int, min_y: int, max_y: int, min_z: int, max_z: int):
+def generate_random_point(min_x: int, max_x: int, min_y: int, max_y: int, min_z: int, max_z: int) -> list:
     return [
         np.random.uniform(low=min_x, high=max_x),
         np.random.uniform(low=min_y, high=max_y),
         np.random.uniform(low=min_z, high=max_z)
     ]
+
+
+def generate_n_random_points(n: int, min_x: int, max_x: int, min_y: int, max_y: int, min_z: int, max_z: int) -> list:
+    points: list = []
+    for i in range(n+1):
+        p = generate_random_point(min_x=min_x, max_x= max_x, min_y=min_y, max_y=max_y, min_z=min_z, max_z=max_z)
+        points.append(p)
+    return points
 
 
 def make_segments(ridge_vertices: np.array) -> list[tuple]:

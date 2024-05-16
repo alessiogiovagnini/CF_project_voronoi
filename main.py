@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 from pathlib import Path
-from src.script import script_from_points
+from src.script import script_from_points, script_from_json
 
 
 def plot_points(points_arr, points_arr2=None):
@@ -116,15 +116,21 @@ if __name__ == '__main__':
 
     # parser = argparse.ArgumentParser(description="Process mesh with voronoi")
     # parser.add_argument("--source", type=Path, help="path to source file", required=True)
-    # parser.add_argument("--output", type=Path, help="path to output file", required=False, default="./output_mesh.stl")
+    # parser.add_argument("--output", type=Path, help="path to output file",
+    # required=False, default="./output_mesh.stl")
     #
     # args = parser.parse_args()
     #
     # script_start(source=Path(args.source), output=Path(args.output))
-    source: Path = Path("./test_mesh/monkey_mesh.stl")
-    source_points: Path = Path("./test_mesh/small_monkey_points.obj")
-    output: Path = Path("./test_mesh/monkey_output.stl")
-    script_from_points(source=source, output=output, point_file=source_points)
+
+    # source: Path = Path("./test_mesh/monkey_mesh.stl")
+    # source_points: Path = Path("./test_mesh/small_monkey_points.obj")
+    # output: Path = Path("./test_mesh/monkey_output.stl")
+    # script_from_points(source=source, output=output, point_file=source_points)
+
+    json_source: Path = Path("./data/example.json")
+    script_from_json(json_path=json_source)
+
 
 
 

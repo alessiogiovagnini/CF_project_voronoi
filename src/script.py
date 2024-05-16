@@ -1,3 +1,4 @@
+import mathutils
 import numpy as np
 
 from src import utils
@@ -5,10 +6,10 @@ from pathlib import Path
 import bpy
 import sys
 from scipy.spatial import Voronoi
-from src.voronoi import make_segments
-from src.geometry import make_voronoi_structure
-import mathutils
+from src.voronoi import make_segments, generate_n_random_points
+from src.geometry import make_voronoi_structure, check_intersection
 import json
+from src.utils import import_file_stl, get_bounding_box
 
 
 def script_from_points(source: Path, output: Path, point_file: Path):
@@ -64,21 +65,49 @@ def script_from_json(json_path: Path):
 
     thickness: float = data.get("thickness")
     mesh_list: list = data.get("meshes")
+    original_mesh_names: list[str] = []
+    all_random_points: list[mathutils.Vector] = []
     for current_mesh in mesh_list:
-        density: int = current_mesh.get("density")  # density is number of points for unit cube
+        density: int = current_mesh.get("density")  # density is number of points for unit cube of blender
         mesh_path: Path = Path(current_mesh.get("path"))
+        mesh_name = mesh_path.stem  # if is an stl then the name of the mesh is the name of the file!!!
 
-        # TODO:
         #  1) import mesh
+        import_file_stl(file=mesh_path)
+        original_mesh_names.append(mesh_name)  # for later when merging
+
         #  2) calculate bounding box
+        current_object = bpy.data.objects[mesh_name]
+        corner1, corner2 = get_bounding_box(obj=current_object)
+
+        min_x, min_y, min_z = corner1[0], corner1[1], corner1[2]
+        max_x, max_y, max_z = corner2[0], corner2[1], corner2[2]
+
+        volume = abs(max_x - min_x) * abs(max_y - min_y) * abs(max_z - min_z)  # the abs function should not
+        # really be necessary as max should be greater than min
+
+        n_points: int = int(density * volume)  # total number of points to be created
+
+        random_points = generate_n_random_points(n=n_points,
+                                                 min_x=min_x,
+                                                 max_x=max_x,
+                                                 min_y=min_y,
+                                                 max_y=max_y,
+                                                 min_z=min_z,
+                                                 max_z=max_z)
+
         #  3) filter pints inside mesh
+        filtered_points: list[mathutils.Vector] = check_intersection(vertices=random_points, obj=current_object)
         #  4) append together all points from all meshes
-        #  5) calculate voronoi from points
-        #  6) create voronoi geometry
-        #  7) join original meshes together (or is better to have an extra one already joined???)
-        #  8) boolean operation between voronoi mesh and joined original
-        #  extra: should we also include the wireframe of the original????
-        #  9) export result as stl
+        all_random_points.extend(filtered_points)
+
+    # TODO:
+    #  5) calculate voronoi from points
+    #  6) create voronoi geometry
+    #  7) join original meshes together (or is better to have an extra one already joined???)
+    #  8) boolean operation between voronoi mesh and joined original
+    #  extra: should we also include the wireframe of the original????
+    #  9) export result as stl
 
 
 
