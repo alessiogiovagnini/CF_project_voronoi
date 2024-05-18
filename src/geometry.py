@@ -5,7 +5,7 @@ import mathutils
 from math import atan, pi, sqrt
 
 
-def check_intersection(vertices: list, obj: bpy.data.Object) -> list[mathutils.Vector]:
+def check_intersection(vertices: list, obj: bpy.types.Object) -> list[mathutils.Vector]:
     """
     https://blender.stackexchange.com/questions/31693/how-to-find-if-a-point-is-inside-a-mesh
     filter points such that only the one inside the mesh are returned
@@ -117,7 +117,7 @@ def make_cylinder(bm: bmesh.types.BMesh, v1: mathutils.Vector, v2: mathutils.Vec
                      verts=vertices["verts"])  # align geometry with line passing through v1 and v2
 
 
-def join_all_objects(selected_objects: list[bpy.data.Object], new_name: str):
+def join_all_objects(selected_objects: list[bpy.types.Object], new_name: str):
     """
     join multiple objects together
     :param selected_objects: list of python objects

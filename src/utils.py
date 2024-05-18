@@ -1,6 +1,6 @@
 import sys
-import mathutils
 import bpy
+import mathutils  # import mathutils after bpy !!!!
 import numpy as np
 from pathlib import Path
 
@@ -40,7 +40,7 @@ def get_point_from_obj(obj: bpy.types.Object) -> np.array:
 
 def import_file_stl(file: Path):
     if file.is_file():
-        bpy.ops.import_mesh(filepath=file.as_posix())
+        bpy.ops.import_mesh.stl(filepath=file.as_posix())
     else:
         print(f"selected file: {file.as_posix()} is invalid")
         sys.exit(1)

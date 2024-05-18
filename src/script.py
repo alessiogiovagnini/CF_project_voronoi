@@ -1,8 +1,8 @@
-import mathutils
 import numpy as np
 from src import utils
 from pathlib import Path
 import bpy
+import mathutils
 import sys
 from scipy.spatial import Voronoi
 from src.voronoi import make_segments, generate_n_random_points
@@ -116,8 +116,9 @@ def script_from_json(json_path: Path):
                            vertices=voronoi_vertices, segments=voronoi_segments, radius=thickness)
 
     #  7) join original meshes together (or is better to have an extra one already joined???)
-    original_objects: list[bpy.data.Object] = [bpy.data.objects[name] for name in original_mesh_names]
+    original_objects: list[bpy.types.Object] = [bpy.data.objects[name] for name in original_mesh_names]
     join_all_objects(selected_objects=original_objects, new_name="merged_objects")
+
 
     # TODO:
     #  8) boolean operation between voronoi mesh and joined original

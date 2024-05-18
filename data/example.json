@@ -2,8 +2,16 @@
   "thickness": 0.3,
   "meshes": [
     {
-      "path": "./data/...",
-      "density": 500
+      "path": "./data/dino_body.stl",
+      "density": 15
+    },
+    {
+      "path": "./data/dino_neck.stl",
+      "density": 8
+    },
+    {
+      "path": "./data/dino_head.stl",
+      "density": 15
     }
   ]
 }
