@@ -104,7 +104,7 @@ def make_cylinder(bm: bmesh.types.BMesh, v1: mathutils.Vector, v2: mathutils.Vec
     new_pos = v1 + (v2 - v1) / 2  # position where to translate the new geometry center
 
     vertices = bmesh.ops.create_cone(bm,
-                                     cap_ends=False,  # should there be caps????
+                                     cap_ends=True,  # should there be caps????
                                      segments=6,  # resolution
                                      radius1=radius,
                                      radius2=radius,
@@ -154,6 +154,8 @@ def boolean_operation(name_a: str, name_b: str):
     mod_bool = bpy.data.objects[name_a].modifiers.new('my_bool_mod', 'BOOLEAN')
     # Set the mode of the modifier to INTERSECT.
     mod_bool.operation = 'INTERSECT'
+
+    mod_bool.solver = "FAST"  # EXACT    # fast seem to work better in some cases
     # Set the object to be used by the modifier.
     mod_bool.object = bpy.data.objects[name_b]
     bpy.context.view_layer.objects.active = bpy.data.objects[name_a]
