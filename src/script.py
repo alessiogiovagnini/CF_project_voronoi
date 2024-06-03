@@ -6,7 +6,8 @@ import mathutils
 import sys
 from scipy.spatial import Voronoi
 from src.voronoi import make_segments, generate_n_random_points
-from src.geometry import make_voronoi_structure, check_intersection, join_all_objects
+from src.geometry import (make_voronoi_structure, check_intersection, join_all_objects, boolean_operation,
+                          wireframe_operation)
 import json
 from src.utils import import_file_stl, get_bounding_box, export_blend, clear_scene
 
@@ -122,13 +123,18 @@ def script_from_json(json_path: Path, out: Path):
 
     #  7) join original meshes together (or is better to have an extra one already joined???)
     original_objects: list[bpy.types.Object] = [bpy.data.objects[name] for name in original_mesh_names]
-    join_all_objects(selected_objects=original_objects, new_name="merged_objects")
+    merged_objects_new_name: str = "merged_objects"
+    join_all_objects(selected_objects=original_objects, new_name=merged_objects_new_name)
+
+    #  8) boolean operation between voronoi mesh and joined original
+    boolean_operation(name_a=voronoi_structure_name, name_b=merged_objects_new_name)
+
+    #  8.1) extra wireframe of the original
+    wireframe_operation(name=merged_objects_new_name, thickness=thickness)
 
     export_blend(file_path=out.as_posix())
     # TODO:
-    #  8) boolean operation between voronoi mesh and joined original
-    #  extra: should we also include the wireframe of the original????
-    #  9) export result as stl
+    #  9) merge and export result as stl
 
     sys.exit(0)
 

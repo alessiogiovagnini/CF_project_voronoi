@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
     json_source: Path = Path("./data/example.json")
 
-    out_path: Path = Path("./data/tmp.blend").resolve()
+    out_path: Path = Path("./data/tmp2.blend").resolve()
     script_from_json(json_path=json_source, out=out_path)
 
 

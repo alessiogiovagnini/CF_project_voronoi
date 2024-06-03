@@ -149,21 +149,27 @@ def join_all_objects(selected_objects: list[bpy.types.Object], new_name: str):
         bpy.data.objects.remove(obj, do_unlink=True)
 
 
-# TODO test and finish this
-def boolean_operation(name_a, name_b, new_one_name):
+def boolean_operation(name_a: str, name_b: str):
     # Create a boolean modifier named 'my_bool_mod' for the cube.
     mod_bool = bpy.data.objects[name_a].modifiers.new('my_bool_mod', 'BOOLEAN')
-    # Set the mode of the modifier to DIFFERENCE.
-    mod_bool.operation = 'UNION'  # 'DIFFERENCE'
+    # Set the mode of the modifier to INTERSECT.
+    mod_bool.operation = 'INTERSECT'
     # Set the object to be used by the modifier.
     mod_bool.object = bpy.data.objects[name_b]
     bpy.context.view_layer.objects.active = bpy.data.objects[name_a]
     # Apply the modifier.
-    res = bpy.ops.object.modifier_apply(apply_as='DATA', modifier='my_bool_mod')
+    res = bpy.ops.object.modifier_apply(modifier='my_bool_mod')
 
-    bpy.data.objects[name_b].select_set(True)  # 2.8+
-    bpy.ops.object.delete()
-    bpy.data.objects[name_a].name = new_one_name
+    return res
+
+
+def wireframe_operation(name: str, thickness: float):
+    mod_wire = bpy.data.objects[name].modifiers.new('my_wire_mod', 'WIREFRAME')
+    mod_wire.thickness = thickness
+
+    bpy.context.view_layer.objects.active = bpy.data.objects[name]
+    res = bpy.ops.object.modifier_apply(modifier='my_wire_mod')
+
     return res
 
 
