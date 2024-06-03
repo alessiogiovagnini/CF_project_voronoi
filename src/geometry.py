@@ -34,16 +34,16 @@ def check_intersection(vertices: list, obj: bpy.types.Object) -> list[mathutils.
 
 
 def make_voronoi_structure(name: str, vertices: np.array, segments: list[tuple], radius: float):
+    print("started making meshes")
     # TODO: optimize this by making it multi-threaded???
     mesh = bpy.data.meshes.new(name)
     obj = bpy.data.objects.new(name, mesh)
     bpy.context.collection.objects.link(obj)
     bm = bmesh.new()
 
-    for v in vertices:
-        make_sphere(bm=bm, position=v, radius=radius)
-
-    print("finished making spheres")
+    # for v in vertices:
+    #     make_sphere(bm=bm, position=v, radius=radius)
+    # print("finished making spheres")
 
     counter = 0
     for s in segments:
@@ -66,7 +66,7 @@ def make_sphere(bm: bmesh.types.BMesh, position: list or np.array or tuple = (0,
     :param position: list or array of coordinates x, y, z
     :param radius: radius of the sphere
     """
-    vertices = bmesh.ops.create_uvsphere(bm, u_segments=8, v_segments=7, radius=radius)
+    vertices = bmesh.ops.create_uvsphere(bm, u_segments=5, v_segments=5, radius=radius)
     bmesh.ops.translate(bm, vec=position, verts=vertices["verts"])
 
 
@@ -105,7 +105,7 @@ def make_cylinder(bm: bmesh.types.BMesh, v1: mathutils.Vector, v2: mathutils.Vec
 
     vertices = bmesh.ops.create_cone(bm,
                                      cap_ends=False,  # should there be caps????
-                                     segments=8,  # resolution
+                                     segments=6,  # resolution
                                      radius1=radius,
                                      radius2=radius,
                                      depth=size,

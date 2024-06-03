@@ -5,6 +5,10 @@ import numpy as np
 from pathlib import Path
 
 
+def export_blend(file_path: str):
+    bpy.ops.wm.save_as_mainfile(filepath=file_path)
+
+
 def clear_scene():
     for obj in bpy.data.objects:
         bpy.data.objects.remove(obj, do_unlink=True)

@@ -129,7 +129,9 @@ if __name__ == '__main__':
     # script_from_points(source=source, output=output, point_file=source_points)
 
     json_source: Path = Path("./data/example.json")
-    script_from_json(json_path=json_source)
+
+    out_path: Path = Path("./data/tmp.blend").resolve()
+    script_from_json(json_path=json_source, out=out_path)
 
 
 

@@ -8,7 +8,7 @@ from scipy.spatial import Voronoi
 from src.voronoi import make_segments, generate_n_random_points
 from src.geometry import make_voronoi_structure, check_intersection, join_all_objects
 import json
-from src.utils import import_file_stl, get_bounding_box
+from src.utils import import_file_stl, get_bounding_box, export_blend, clear_scene
 
 
 def script_from_points(source: Path, output: Path, point_file: Path):
@@ -57,7 +57,7 @@ def script_start(source: Path, output: Path, density: int = 100, radius: float =
     total_num_points: int = int(density * volume)
 
 
-def script_from_json(json_path: Path):
+def script_from_json(json_path: Path, out: Path):
     file = open(json_path)
     data = json.load(file)
     file.close()
@@ -66,10 +66,12 @@ def script_from_json(json_path: Path):
     mesh_list: list = data.get("meshes")
     original_mesh_names: list[str] = []
     all_random_points: list[mathutils.Vector] = []
+    #  0) clean blender scene (remove default cube, light, camera)
+    clear_scene()
     for current_mesh in mesh_list:
         density: int = current_mesh.get("density")  # density is number of points for unit cube of blender
         mesh_path: Path = Path(current_mesh.get("path"))
-        mesh_name = mesh_path.stem  # if is an stl then the name of the mesh is the name of the file!!!
+        mesh_name = mesh_path.stem  # if is a stl then the name of the mesh is the name of the file!!!
 
         #  1) import mesh
         import_file_stl(file=mesh_path)
@@ -101,6 +103,7 @@ def script_from_json(json_path: Path):
         all_random_points.extend(filtered_points)
 
     compatible_points = [np.array((p[0], p[1], p[2])) for p in all_random_points]
+    print(f"N of random points: {len(compatible_points)}")
     #  5) calculate voronoi from points
     voronoi = Voronoi(points=compatible_points)
 
@@ -109,6 +112,8 @@ def script_from_json(json_path: Path):
     # these two are needed to construct the geometry
     voronoi_vertices: np.array = voronoi.vertices
     voronoi_segments: list[tuple] = make_segments(ridge_vertices=voronoi_ridge_vertices)
+    print(f"N vertices: {len(voronoi_vertices)}")
+    print(f"N segment: {len(voronoi_segments)}")
 
     #  6) create voronoi geometry
     voronoi_structure_name: str = "voronoi_structure"
@@ -119,11 +124,11 @@ def script_from_json(json_path: Path):
     original_objects: list[bpy.types.Object] = [bpy.data.objects[name] for name in original_mesh_names]
     join_all_objects(selected_objects=original_objects, new_name="merged_objects")
 
-
+    export_blend(file_path=out.as_posix())
     # TODO:
     #  8) boolean operation between voronoi mesh and joined original
     #  extra: should we also include the wireframe of the original????
     #  9) export result as stl
 
-
+    sys.exit(0)
 
