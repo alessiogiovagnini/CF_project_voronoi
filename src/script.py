@@ -143,7 +143,7 @@ def script_from_json(json_path: Path, out: Path):
     #  10) merge closest vertex
     merge_doubles(object_name=final_name, max_dist=thickness/2)
 
-    export_stl_file(output=Path(out.parent, "out.stl"))
+    export_stl_file(output=Path(out))
 
     sys.exit(0)
 

@@ -114,7 +114,7 @@ if __name__ == '__main__':
     # main()
     # main_2()
 
-    # parser = argparse.ArgumentParser(description="Process mesh with voronoi")
+    parser = argparse.ArgumentParser(description="Process mesh with voronoi")
     # parser.add_argument("--source", type=Path, help="path to source file", required=True)
     # parser.add_argument("--output", type=Path, help="path to output file",
     # required=False, default="./output_mesh.stl")
@@ -128,9 +128,13 @@ if __name__ == '__main__':
     # output: Path = Path("./test_mesh/monkey_output.stl")
     # script_from_points(source=source, output=output, point_file=source_points)
 
-    json_source: Path = Path("./data/example.json")
+    parser.add_argument("--source", type=Path, help="path to source file", default="./data/example.json")
+    parser.add_argument("--output", type=Path, help="path to output file", default="./data/out.stl")
+    args = parser.parse_args()
 
-    out_path: Path = Path("./data/tmp2.blend").resolve()
+    json_source: Path = Path(args.source)
+
+    out_path: Path = Path(args.output).resolve()
     script_from_json(json_path=json_source, out=out_path)
 
 
