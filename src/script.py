@@ -7,9 +7,9 @@ import sys
 from scipy.spatial import Voronoi
 from src.voronoi import make_segments, generate_n_random_points
 from src.geometry import (make_voronoi_structure, check_intersection, join_all_objects, boolean_operation,
-                          wireframe_operation)
+                          wireframe_operation, merge_doubles)
 import json
-from src.utils import import_file_stl, get_bounding_box, export_blend, clear_scene
+from src.utils import import_file_stl, get_bounding_box, export_blend, clear_scene, export_stl_file
 
 
 def script_from_points(source: Path, output: Path, point_file: Path):
@@ -130,11 +130,20 @@ def script_from_json(json_path: Path, out: Path):
     boolean_operation(name_a=voronoi_structure_name, name_b=merged_objects_new_name)
 
     #  8.1) extra wireframe of the original
-    wireframe_operation(name=merged_objects_new_name, thickness=thickness)
+    wireframe_operation(name=merged_objects_new_name, thickness=thickness*2)
 
-    export_blend(file_path=out.as_posix())
-    # TODO:
+    # export_blend(file_path=out.as_posix())
+
+    final_objects: list[bpy.types.Object] = [bpy.data.objects[merged_objects_new_name],
+                                             bpy.data.objects[voronoi_structure_name]]
     #  9) merge and export result as stl
+    final_name: str = "output"
+    join_all_objects(selected_objects=final_objects, new_name=final_name)
+
+    #  10) merge closest vertex
+    merge_doubles(object_name=final_name, max_dist=thickness/2)
+
+    export_stl_file(output=Path(out.parent, "out.stl"))
 
     sys.exit(0)
 

@@ -175,9 +175,12 @@ def wireframe_operation(name: str, thickness: float):
     return res
 
 
-def merge_doubles(object_name: str):
+def merge_doubles(object_name: str, max_dist: float):
+    current_obj_data = bpy.data.objects[object_name].data
     bm = bmesh.new()
+    bm.from_mesh(current_obj_data)
     # TODO need to finish this if is going to be useful
-    bmesh.ops.remove_doubles(bm, verts=[], dist=0)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=max_dist)
 
+    bm.to_mesh(current_obj_data)
     bm.free()
