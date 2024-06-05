@@ -129,7 +129,7 @@ if __name__ == '__main__':
     # script_from_points(source=source, output=output, point_file=source_points)
 
     parser.add_argument("--source", type=Path, help="path to source file", default="./data/example.json")
-    parser.add_argument("--output", type=Path, help="path to output file", default="./data/out.stl")
+    parser.add_argument("--output", type=Path, help="path to output file", default="./data/out_mesh.stl")
     args = parser.parse_args()
 
     json_source: Path = Path(args.source)

@@ -14,6 +14,11 @@ def clear_scene():
         bpy.data.objects.remove(obj, do_unlink=True)
 
 
+def remove_objects(objects: bpy.data.objects):
+    for obj in objects:
+        bpy.data.objects.remove(obj, do_unlink=True)
+
+
 def import_file_obj(file: Path):
     if file.is_file():
         bpy.ops.wm.obj_import(filepath=file.as_posix())

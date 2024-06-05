@@ -9,7 +9,7 @@ from src.voronoi import make_segments, generate_n_random_points
 from src.geometry import (make_voronoi_structure, check_intersection, join_all_objects, boolean_operation,
                           wireframe_operation, merge_doubles)
 import json
-from src.utils import import_file_stl, get_bounding_box, export_blend, clear_scene, export_stl_file
+from src.utils import import_file_stl, get_bounding_box, export_blend, clear_scene, export_stl_file, remove_objects
 
 
 def script_from_points(source: Path, output: Path, point_file: Path):
@@ -64,7 +64,8 @@ def script_from_json(json_path: Path, out: Path):
     file.close()
 
     thickness: float = data.get("thickness")  # radius
-    mesh_list: list = data.get("meshes")
+    original_file: str = data.get("original")   # original un-subdivided mesh
+    mesh_list: list = data.get("meshes")        # separated meshes
     original_mesh_names: list[str] = []
     all_random_points: list[mathutils.Vector] = []
     #  0) clean blender scene (remove default cube, light, camera)
@@ -121,20 +122,24 @@ def script_from_json(json_path: Path, out: Path):
     make_voronoi_structure(name=voronoi_structure_name,
                            vertices=voronoi_vertices, segments=voronoi_segments, radius=thickness)
 
-    #  7) join original meshes together (or is better to have an extra one already joined???)
+    #  7) remove original objects
     original_objects: list[bpy.types.Object] = [bpy.data.objects[name] for name in original_mesh_names]
-    merged_objects_new_name: str = "merged_objects"
-    join_all_objects(selected_objects=original_objects, new_name=merged_objects_new_name)
+    remove_objects(original_objects)
+    
+    #  7.1) import original mesh to use
+    original_path: Path = Path(original_file)
+    original_name: str = original_path.stem
+    import_file_stl(file=original_path)
 
     #  8) boolean operation between voronoi mesh and joined original
-    boolean_operation(name_a=voronoi_structure_name, name_b=merged_objects_new_name)
+    boolean_operation(name_a=voronoi_structure_name, name_b=original_name)
 
     #  8.1) extra wireframe of the original
-    wireframe_operation(name=merged_objects_new_name, thickness=thickness*2)
+    wireframe_operation(name=original_name, thickness=thickness*2)
 
     # export_blend(file_path=out.as_posix())
 
-    final_objects: list[bpy.types.Object] = [bpy.data.objects[merged_objects_new_name],
+    final_objects: list[bpy.types.Object] = [bpy.data.objects[original_name],
                                              bpy.data.objects[voronoi_structure_name]]
     #  9) merge and export result as stl
     final_name: str = "output"
